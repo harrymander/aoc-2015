@@ -1,31 +1,25 @@
+import operator
 import sys
 
 
 class Circuit(object):
-    @staticmethod
-    def and_(a, b):
-        return a & b
+    NUMBITS = 16
+    _BITMASK = 2**NUMBITS - 1
 
-    @staticmethod
-    def or_(a, b):
-        return a | b
+    and_ = operator.and_
+    or_ = operator.or_
+    rshift = operator.rshift
 
     @staticmethod
     def not_(a):
-        binrepr = f'{a:016b}'.replace('0', 'a').replace('1', 'b')
-        return int(binrepr.replace('a', '1').replace('b', '0'), 2)
+        return a ^ Circuit._BITMASK
 
     @staticmethod
     def lshift(a, b):
-        shifted = f'{(a << b):016b}'
-        return int(shifted[-16:], 2)
+        return (a << b) & Circuit._BITMASK
 
     @staticmethod
-    def rshift(a, b):
-        return a >> b
-
-    @staticmethod
-    def pass_(a):
+    def ident(a):
         return a
 
     class _WireOp(object):
@@ -34,7 +28,7 @@ class Circuit(object):
             return f'_WireOp({self.op.__name__}({args})'
 
         def __init__(self, op, *args):
-            self.op = op or Circuit.pass_
+            self.op = op or Circuit.ident
 
             self.args = []
             for arg in args:
